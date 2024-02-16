@@ -4,6 +4,8 @@ jobs:
   build_vue:
     runs-on: ubuntu-latest
     name: Build Vue
+    environment:
+      BASE_URL: "/tms-stat-viewer-example"
     steps:
       - uses: actions/checkout@v2
       - id: Build-Vue
