@@ -1,11 +1,15 @@
 {
   "query": {
+    "range": "Period",
     "from": "From",
     "to": "To",
     "provider": "Only for",
-    "threshold": "View time threshold, min"
+    "threshold": "View time threshold, min",
+    "do": "Do query"
   },
   "channel": {
+    "displayNumber": "Number",
+    "logoUrl": "Logo",
     "name": "Name",
     "dvrMinutes": "DVR total view time",
     "liveMinutes": "Live total view time",

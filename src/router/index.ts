@@ -4,7 +4,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    component: () => import('@/layouts/default/Default.vue'),
     children: [
       {
         path: '',
@@ -12,10 +11,18 @@ const routes = [
         component: () => import('@/components/Login.vue'),
       },
       {
-        path: 'stat',
-        name: 'stat',
-        component: () => import('@/components/Stat.vue'),
+        name: 'app',
+        path: 'app',
+        component: () => import('@/layouts/default/Default.vue'),
+        children:[
+          {
+            path: 'stat',
+            name: 'stat',
+            component: () => import('@/components/Stat.vue'),
+          }
+        ]
       },
+
     ],
   },
 ]

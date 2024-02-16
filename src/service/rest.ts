@@ -32,7 +32,7 @@ http.interceptors.response.use(function (response){
   if(error.response){
     if(error.response.status > 400 && error.response.status < 404){
       if(router.currentRoute.value.name !== 'login'){
-        router.replace('login');
+        router.push({name: 'login'});
       }
     }
   }

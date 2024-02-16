@@ -17,6 +17,11 @@ export const useAppStore = defineStore('app', {
     locale: 'en',
   }),
   actions:{
+    logout(){
+      this.target = '';
+      this.token = null;
+      router.replace({name:'login'})
+    },
     setToken(token:string|null){
       this.token = token;
     },
@@ -30,10 +35,6 @@ export const useAppStore = defineStore('app', {
       this.theme = theme
     },
 
-    logout(){
-      this.token = null;
-      router.replace({name:'login'})
-    }
 
   },
   persist: {debug:true}
