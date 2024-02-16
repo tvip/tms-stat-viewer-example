@@ -2,14 +2,13 @@
 import {useAppStore} from "@/store/app";
 import {ref} from "vue";
 import providerService from "@/service/provider/ProviderService";
-import {AxiosError, AxiosResponse} from "axios";
+import {AxiosResponse} from "axios";
 import {useProviderStore} from "@/store/provider";
 import router from "@/router";
 
 const appStore = useAppStore();
 const providerStore = useProviderStore();
 const wait = ref<boolean>(false);
-const error = ref<string|null>(null)
 const url = ref<string>(appStore.target);
 const username = ref<string>();
 const password = ref<string>();
