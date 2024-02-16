@@ -1,0 +1,20 @@
+{
+  "query": {
+    "from": "From",
+    "to": "To",
+    "provider": "Only for",
+    "threshold": "View time threshold, min"
+  },
+  "channel": {
+    "name": "Name",
+    "dvrMinutes": "DVR total view time",
+    "liveMinutes": "Live total view time",
+    "liveViewers": "Live viewers count",
+    "dvrViewers": "DVR viewers count",
+    "report": {
+      "title": "Channel rating report",
+      "to_period": "on period"
+    }
+  }
+
+}
