@@ -7,8 +7,7 @@ import {ref} from "vue";
 import {useChannelStore} from "@/store/channel";
 import {Provider} from "@/dto/provider/Provider";
 import {useLogStore} from "@/store/log";
-import {ChartDateSeries} from "@/interface/ChartDateSeries";
-import ChannelEntity, {DayStat} from "@/model/ChannelEntity";
+import ChannelEntity from "@/model/ChannelEntity";
 import {useLocale} from "vuetify";
 const range = ref<Date[]>([dayjs().subtract(2,'day').toDate(), dayjs().subtract(1,'day').toDate()])
 const provider = ref<Provider|null>(null)
@@ -29,28 +28,6 @@ const headers = ref([
 
 ])
 
-const options = {
-  chart:{
-    stacked: true
-  },
-  plotOptions: {
-    bar: {
-      horizontal: false
-    }
-  },
-  xaxis: {
-    type: 'datetime',
-    labels: {
-      formatter: function (val:number) {
-        return dayjs(new Date(val)).format('YYYY-MM-DD');
-      }
-
-    }
-  }
-};
-
-const series= ref<ChartDateSeries[]>([]);
-
 
 const providerStore = useProviderStore();
 const channelStore = useChannelStore();
@@ -59,15 +36,11 @@ const channelEntities = ref<ChannelEntity[]>( []);
 function load(){
   loading.value = true;
   logStore.addLog('erase old stat');
-  series.value = [];
   channelStore.setThreshold(threshold.value);
   channelStore.eraseStat();
   channelStore.fillStat(range.value, provider.value).then((channels: ChannelEntity[])=>{
-
     channelEntities.value = channels;
     loading.value = false;
-    convert();
-
   })
 }
 
@@ -75,21 +48,6 @@ function eraseStat(){
   channelStore.eraseStat();
 }
 
-function convert(){
-
-  series.value = [];
-  const other:ChartDateSeries = {name: 'other', data: []};
-  series.value.push(other);
-  for(const channelEntity of channelEntities.value.values()){
-    const s:ChartDateSeries = {name: channelEntity.name, data:[]};
-    channelEntity.stats.forEach((dayStat: DayStat)=>{
-      s.data.push({x: dayStat.date, y: dayStat.liveViewers});
-    })
-    series.value.push(s);
-  }
-
-
-}
 
 </script>
 

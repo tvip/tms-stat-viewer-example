@@ -6,3 +6,5 @@ class DeviceStatService extends AbstractStatService {
   }
 
 }
+
+export default new DeviceStatService();

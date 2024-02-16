@@ -1,5 +1,4 @@
 import {defineStore} from "pinia";
-import dayjs from "dayjs";
 
 export enum LogLevel {
   info,
