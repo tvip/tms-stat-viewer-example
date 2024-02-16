@@ -51,7 +51,7 @@ function login(){
               </v-form>
             </v-col>
           </v-card-text>
-          <v-card-subtitle><v-btn :flat="true" icon="mdi-github"></v-btn> </v-card-subtitle>
+          <v-card-subtitle><v-btn href="https://github.com/tvip/tms-stat-viewer-example" :flat="true" icon="mdi-github"></v-btn> </v-card-subtitle>
         </v-card>
     </v-sheet>
   </div>
