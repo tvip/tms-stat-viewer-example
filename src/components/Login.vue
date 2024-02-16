@@ -5,6 +5,7 @@ import providerService from "@/service/provider/ProviderService";
 import {AxiosResponse} from "axios";
 import {useProviderStore} from "@/store/provider";
 import router from "@/router";
+import http from "@/service/rest";
 
 const appStore = useAppStore();
 const providerStore = useProviderStore();
@@ -15,6 +16,7 @@ const password = ref<string>();
 function login(){
   if(url.value && username.value && password.value) {
     appStore.target = url.value;
+    http.defaults.baseURL = appStore.target;
     appStore.token = btoa(username.value + ":" + password.value);
     providerService.collection({start:0, limit:-1,sort:[],enabled:null})
       .then((response: AxiosResponse)=>{
