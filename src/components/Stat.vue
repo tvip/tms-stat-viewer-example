@@ -145,10 +145,10 @@ function convert(){
                   </template>
 
                   <template v-slot:[`item.liveMinutes`]="{value}">
-                    {{dayjs.duration(value,'seconds').format('YYYY:MM:DD:HH:mm:ss')}}
+                    {{dayjs.duration(value,'minutes').format('YYYY [year] MM [month] DD [days] HH [hours] mm [minutes]')}}
                   </template>
                   <template v-slot:[`item.dvrMinutes`]="{value}">
-                    {{dayjs.duration(value,'seconds').format('YYYY:MM:DD:HH:mm:ss')}}
+                    {{dayjs.duration(value,'minutes').format('YYYY [year] MM [month] DD [days] HH [hours] mm [minutes]')}}
                   </template>
                 </v-data-table>
               </v-card-text>
