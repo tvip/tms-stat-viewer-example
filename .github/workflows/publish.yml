@@ -9,6 +9,6 @@ jobs:
       - id: Build-Vue
         uses: xRealNeon/VuePagesAction@1.0.1
         with:
-          username: 'den1s'
-          reponame: 'test-actions'
+          username: 'tvip'
+          reponame: 'tms-stat-viewer-example'
           token: ${{ secrets.GITHUB_TOKEN }} # Leave this line unchanged
