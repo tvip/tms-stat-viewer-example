@@ -5,7 +5,8 @@
     "to": "To",
     "provider": "Only for",
     "threshold": "View time threshold, min",
-    "do": "Do query"
+    "do": "Do query",
+    "showMinutes": "Show duration in minutes instead formatted duration"
   },
   "channel": {
     "displayNumber": "Number",

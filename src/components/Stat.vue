@@ -14,6 +14,7 @@ const range = ref<Date[]>([dayjs().subtract(2,'day').toDate(), dayjs().subtract(
 const provider = ref<Provider|null>(null)
 const loading = ref<boolean>(false);
 const threshold = ref<number>(5);
+const showMinutes = ref<boolean>(false);
 const { t } = useLocale()
 
 dayjs.extend(duration);
@@ -61,9 +62,6 @@ function load(){
   series.value = [];
   channelStore.setThreshold(threshold.value);
   channelStore.eraseStat();
-
-
-
   channelStore.fillStat(range.value, provider.value).then((channels: ChannelEntity[])=>{
 
     channelEntities.value = channels;
@@ -126,8 +124,10 @@ function convert(){
               <v-date-picker v-model="range" multiple="range" :label="$t('app.query.from')"></v-date-picker>
             </v-menu>
             <v-slider min="0" max="90" step="5" :label="t('app.query.threshold')+': '+threshold.toString()" v-model="threshold" @update:modelValue="eraseStat"></v-slider>
+                <v-checkbox v-model="showMinutes" :label="$t('app.query.showMinutes')"></v-checkbox>
               </v-card-text>
               <v-card-actions>
+                <v-spacer></v-spacer>
                   <v-btn @click="load" prepend-icon="mdi-refresh" color="primary">{{$t('app.query.do')}}</v-btn>
               </v-card-actions>
             </v-card>
@@ -144,10 +144,10 @@ function convert(){
 
                   </template>
 
-                  <template v-slot:[`item.liveMinutes`]="{value}">
+                  <template v-if="!showMinutes" v-slot:[`item.liveMinutes`]="{value}">
                     {{dayjs.duration(value,'minutes').format('YYYY [year] MM [month] DD [days] HH [hours] mm [minutes]')}}
                   </template>
-                  <template v-slot:[`item.dvrMinutes`]="{value}">
+                  <template v-if="!showMinutes" v-slot:[`item.dvrMinutes`]="{value}">
                     {{dayjs.duration(value,'minutes').format('YYYY [year] MM [month] DD [days] HH [hours] mm [minutes]')}}
                   </template>
                 </v-data-table>
