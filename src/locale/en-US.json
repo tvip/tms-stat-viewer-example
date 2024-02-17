@@ -19,6 +19,15 @@
     "report": {
       "title": "Channel rating report",
       "to_period": "on period"
+    },
+    "dayStat": {
+      "dvrMinutes": "DVR total view time",
+      "liveMinutes": "Live total view time",
+      "liveViewers": "Live viewers count",
+      "dvrViewers": "DVR viewers count",
+      "totalViewers": "Live and DVR viewers",
+      "totalTime": "Live and DVR view time",
+      "averageViewingTime": "Daily average view time (Total view time / Total view count)"
     }
   }
 

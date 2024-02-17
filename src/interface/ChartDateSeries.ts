@@ -1,1 +1,1 @@
-export type ChartDateSeries = {name: string, data: {x:Date,y:number}[]}
+export type ChartDateSeries = {name: string, data: {x:Date, y:number}[]}

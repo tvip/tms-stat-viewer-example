@@ -7,7 +7,7 @@ import {ref} from "vue";
 import {useChannelStore} from "@/store/channel";
 import {Provider} from "@/dto/provider/Provider";
 import {useLogStore} from "@/store/log";
-import ChannelEntity from "@/model/ChannelEntity";
+import ChannelEntity, {DayStat} from "@/model/ChannelEntity";
 import {useLocale} from "vuetify";
 import {ChartDateSeries} from "@/interface/ChartDateSeries";
 const range = ref<Date[]>([dayjs().subtract(2,'day').toDate(), dayjs().subtract(1,'day').toDate()])
@@ -16,6 +16,18 @@ const loading = ref<boolean>(false);
 const threshold = ref<number>(5);
 const showMinutes = ref<boolean>(false);
 const { t } = useLocale()
+
+const chartKeys= [
+  'liveViewers' as keyof DayStat,
+  'dvrViewers' as keyof DayStat,
+  'dvrMinutes' as keyof DayStat,
+  'liveMinutes' as keyof DayStat,
+  'averageViewingTime' as keyof DayStat,
+  'totalTime' as keyof DayStat,
+  'totalViewers' as keyof DayStat,
+]
+
+const chartKey = ref<keyof DayStat>(chartKeys[0])
 
 dayjs.extend(duration);
 
@@ -45,6 +57,8 @@ const providerStore = useProviderStore();
 const channelStore = useChannelStore();
 const logStore = useLogStore();
 const channelEntities = ref<ChannelEntity[]>( []);
+
+
 function load(){
   loading.value = true;
   channelTopSeries.value = [];
@@ -53,21 +67,26 @@ function load(){
   channelStore.eraseStat();
   channelStore.fillStat(range.value, provider.value).then((channels: ChannelEntity[])=>{
     channelEntities.value = channels;
-    channelStore.getTop().forEach((channel: ChannelEntity)=>{
-      const series:ChartDateSeries = { data: [], name: channel.name}
-      range.value.forEach((date: Date)=>{
-        series.data.push({x: date, y: channel.getStatDay(date).averageViewingTime})
-      })
-      channelTopSeries.value.push(series);
-    });
+    convert(chartKey.value);
     loading.value = false;
   })
+}
+
+function convert(value: keyof DayStat) {
+  channelTopSeries.value = [];
+  channelStore.getTop().forEach((channel: ChannelEntity)=>{
+    const series:ChartDateSeries = { data: [], name: channel.name}
+    range.value.forEach((date: Date)=>{
+      series.data.push({x: date, y: (channel.getStatDay(date)[value] as number)})
+    })
+    channelTopSeries.value.push(series);
+  });
 }
 
 function eraseStat(){
   channelStore.eraseStat();
 }
-
+convert(chartKey.value);
 
 </script>
 
@@ -110,7 +129,17 @@ function eraseStat(){
               </v-card-actions>
             </v-card>
           <v-card>
-            <v-card-title>Daily average viewing time</v-card-title>
+            <v-card-title>
+              <v-select @update:modelValue="convert" v-model="chartKey" :items="chartKeys">
+                <template v-slot:item="{props, item}">
+                  <v-list-item v-bind="props" :title="$t('app.channel.dayStat.'+ item.raw)">
+                  </v-list-item>
+                </template>
+                <template v-slot:selection = "{item}">
+                  {{ $t('app.channel.dayStat.'+item.raw) }}
+                </template>
+              </v-select>
+            </v-card-title>
             <v-card-text>
               <div style="width: 100%; height: 500px;">
                 <apexchart height="500px" type="line" :options="options" :series="channelTopSeries"></apexchart>
