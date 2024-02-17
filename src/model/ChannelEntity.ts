@@ -6,17 +6,31 @@ export  class DayStat {
   dvrViewers: number = 0;
   dvrMinutes: number = 0;
   liveMinutes: number = 0;
-
+  averageViewingTime: number = 0;
+  totalTime: number = 0;
+  totalViewers: number = 0;
 
 
   addDvrMinutes(minutes: number){
     this.dvrMinutes +=minutes;
     this.dvrViewers++;
 
+    this.totalViewers++;
+    this.totalTime += minutes;
+
+    this.averageViewingTime = Math.floor(this.totalTime/this.totalViewers);
+
+
   }
   addLiveMinutes(minutes: number){
     this.liveMinutes += minutes;
     this.liveViewers++;
+
+    this.totalViewers++;
+    this.totalTime += minutes;
+
+    this.averageViewingTime = Math.floor(this.totalTime/this.totalViewers);
+
   }
 
 }

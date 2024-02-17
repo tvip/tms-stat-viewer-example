@@ -23,6 +23,15 @@ export const useChannelStore = defineStore('channelStore',{
     threshold: 60
   }),
   actions: {
+    getTop(count:number =10){
+      return this.channels.sort(function (a, b){
+        if(a.liveMinutes+a.dvrMinutes == b.liveMinutes+a.dvrMinutes){
+          return 0;
+        }
+
+        return a.liveMinutes+a.dvrMinutes > b.liveMinutes+a.dvrMinutes ? -1:1
+      }).slice(0,count);
+    },
     getChannels():ChannelEntity[]{
       if(this.loaded == false){
         this.init();

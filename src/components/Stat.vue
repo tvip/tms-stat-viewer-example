@@ -9,6 +9,7 @@ import {Provider} from "@/dto/provider/Provider";
 import {useLogStore} from "@/store/log";
 import ChannelEntity from "@/model/ChannelEntity";
 import {useLocale} from "vuetify";
+import {ChartDateSeries} from "@/interface/ChartDateSeries";
 const range = ref<Date[]>([dayjs().subtract(2,'day').toDate(), dayjs().subtract(1,'day').toDate()])
 const provider = ref<Provider|null>(null)
 const loading = ref<boolean>(false);
@@ -28,6 +29,17 @@ const headers = ref([
 
 ])
 
+const options = {
+  xaxis: {
+    type: 'datetime',
+    labels: {
+      datetimeUTC: false
+    }
+  }
+};
+
+const channelTopSeries = ref<ChartDateSeries[]>([]);
+
 
 const providerStore = useProviderStore();
 const channelStore = useChannelStore();
@@ -35,11 +47,19 @@ const logStore = useLogStore();
 const channelEntities = ref<ChannelEntity[]>( []);
 function load(){
   loading.value = true;
+  channelTopSeries.value = [];
   logStore.addLog('erase old stat');
   channelStore.setThreshold(threshold.value);
   channelStore.eraseStat();
   channelStore.fillStat(range.value, provider.value).then((channels: ChannelEntity[])=>{
     channelEntities.value = channels;
+    channelStore.getTop().forEach((channel: ChannelEntity)=>{
+      const series:ChartDateSeries = { data: [], name: channel.name}
+      range.value.forEach((date: Date)=>{
+        series.data.push({x: date, y: channel.getStatDay(date).averageViewingTime})
+      })
+      channelTopSeries.value.push(series);
+    });
     loading.value = false;
   })
 }
@@ -89,6 +109,14 @@ function eraseStat(){
                   <v-btn @click="load" prepend-icon="mdi-refresh" color="primary">{{$t('app.query.do')}}</v-btn>
               </v-card-actions>
             </v-card>
+          <v-card>
+            <v-card-title>Daily average viewing time</v-card-title>
+            <v-card-text>
+              <div style="width: 100%; height: 500px;">
+                <apexchart height="500px" type="line" :options="options" :series="channelTopSeries"></apexchart>
+              </div>
+            </v-card-text>
+          </v-card>
             <v-card>
               <v-card-title>{{$t('app.channel.report.title')}} {{$t('app.channel.report.to_period')}} {{dayjs(range[0]).format('DD.MM.YYYY')}} - {{dayjs(range[range.length-1]).format('DD.MM.YYYY')}} </v-card-title>
               <v-card-subtitle>{{$t('app.query.threshold')}}: {{threshold}}</v-card-subtitle>
