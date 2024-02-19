@@ -1,4 +1,17 @@
 {
+  "stat": {
+    "tab": {
+      "channel": "Channels stat",
+      "device": "Device stat",
+      "subscription": "Subscription stat"
+    }
+  },
+  "device": {
+    "class": "Device class",
+    "live_hours": "Live hours",
+    "dvr_hours": "DVR hours",
+    "unique_devices": "Maximum unique devices"
+  },
   "query": {
     "range": "Period",
     "from": "From",
@@ -6,7 +19,8 @@
     "provider": "Only for",
     "threshold": "View time threshold, min",
     "do": "Do query",
-    "showMinutes": "Show duration in minutes instead formatted duration"
+    "showMinutes": "Show duration in minutes instead formatted duration",
+    "showHours":  "Show duration in hours instead formatted duration"
   },
   "channel": {
     "displayNumber": "Number",
