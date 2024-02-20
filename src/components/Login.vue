@@ -16,9 +16,11 @@ const password = ref<string>();
 function login(){
   if(url.value && username.value && password.value) {
     appStore.target = url.value;
-    http.defaults.baseURL = appStore.target;
-
     appStore.token = btoa(username.value + ":" + password.value);
+
+    http.defaults.baseURL = appStore.target;
+    // http.defaults.headers.common['Authorization'] = "Basic "+ btoa(username.value + ":" + password.value);
+
     providerService.collection({start:0, limit:-1,sort:[],enabled:null})
       .then((response: AxiosResponse)=>{
           providerStore.setProviders(response.data.data)

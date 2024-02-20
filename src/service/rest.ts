@@ -18,6 +18,7 @@ const http:AxiosInstance = axios.create({
   },
 })
 http.interceptors.request.use(function (config){
+  config.headers.set('Authorization',"Basic "+ app.token)
   logStore.addLog('requested '+ config.url + JSON.stringify(config.params))
   apiStore.setLoadingStart();
   return config;
