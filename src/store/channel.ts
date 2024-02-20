@@ -75,6 +75,7 @@ export const useChannelStore = defineStore('channelStore',{
         channelEntity.dvrMinutes = 0;
         channelEntity.liveMinutes = 0;
       })
+      this.dayStats = [];
     },
 
     init({enabled}:{enabled:boolean}):void{
@@ -101,6 +102,7 @@ export const useChannelStore = defineStore('channelStore',{
       });
      },
     async fillDay(value:Date, provider: Provider|null = null):Promise<number>{
+      this.getChannelsDayStat(value).auditory = 0;
       return new Promise((resolve)=>{
         accountStatService.query(
           {
