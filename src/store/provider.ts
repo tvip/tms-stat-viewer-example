@@ -24,7 +24,7 @@ export const useProviderStore = defineStore('providerStore',{
     },
 
     initProviders():void{
-      providerService.collection({start:0, limit: -1, sort:[], enabled:null}).then((response: AxiosResponse)=>{
+      providerService.collection({start:0, limit: 9999, sort:[], enabled:null}).then((response: AxiosResponse)=>{
         this.providers = response.data.data;
         this.loaded = true;
       })
