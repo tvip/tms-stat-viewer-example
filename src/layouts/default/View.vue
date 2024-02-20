@@ -35,15 +35,12 @@
 <script lang="ts" setup>
 import {LogLevel, useLogStore} from "@/store/log";
 import dayjs from "dayjs";
-import {useChannelStore} from "@/store/channel";
+
 const logStore = useLogStore();
-const channelStore = useChannelStore();
-channelStore.init();
 
 
 function erase(){
   logStore.erase();
-  console.dir(logStore.logs);
 }
 
 </script>
