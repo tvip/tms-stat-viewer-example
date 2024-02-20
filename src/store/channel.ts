@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import {Channel} from "@/dto/provider/Channel";
 import channelService from "@/service/provider/ChannelService";
 import ChannelEntity from "@/model/ChannelEntity";
@@ -86,7 +86,7 @@ export const useChannelStore = defineStore('channelStore',{
       })
     },
     async fillStat(dateRange: Date[], provider: Provider|null = null):Promise<ChannelEntity[]>{
-      return new Promise<ChannelEntity[]>((resolve) => {
+      return new Promise<ChannelEntity[]>((resolve, reject) => {
         let count:number = 0;
         if(dateRange.length ==0){
           resolve(this.channels);
@@ -97,6 +97,8 @@ export const useChannelStore = defineStore('channelStore',{
             if(count == dateRange.length){
               resolve(this.channels);
             }
+          }).catch((error: AxiosError)=>{
+            reject(error);
           })
         }
       });
@@ -104,7 +106,7 @@ export const useChannelStore = defineStore('channelStore',{
     async fillDay(value:Date, provider: Provider|null = null):Promise<number>{
       this.getChannelsDayStat(value).audience = 0;
 
-      return new Promise((resolve)=>{
+      return new Promise((resolve,reject)=>{
         accountStatService.query(
           {
             from: dayjs(value).format('YYYY-MM-DD'),
@@ -153,6 +155,8 @@ export const useChannelStore = defineStore('channelStore',{
 
           }
 
+        }).catch((error: AxiosError)=>{
+          reject(error);
         })
       })
 

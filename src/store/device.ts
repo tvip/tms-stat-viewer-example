@@ -2,7 +2,7 @@ import DeviceEntity from "@/model/DeviceEntity";
 import {defineStore} from "pinia";
 import {Provider} from "@/dto/provider/Provider";
 import dayjs from "dayjs";
-import {AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import deviceStatService from "@/service/stat/DeviceStatService";
 import {DeviceStatResponse} from "@/dto/stat/DeviceStatResponse";
 
@@ -36,7 +36,7 @@ export const useDeviceStore = defineStore('deviceStore', {
 
     async getDeviceStat(dateRange: Date[], provider: Provider|null = null):Promise<DeviceEntity[]>{
       this.eraseStat();
-      return new Promise<DeviceEntity[]>((resolve) => {
+      return new Promise<DeviceEntity[]>((resolve,reject) => {
         let count:number = 0;
         if(dateRange.length ==0){
           resolve(this.devices);
@@ -61,6 +61,8 @@ export const useDeviceStore = defineStore('deviceStore', {
             if(count == dateRange.length){
               resolve(this.devices);
             }
+          }).catch((error: AxiosError)=>{
+            reject(error);
           })
         }
 

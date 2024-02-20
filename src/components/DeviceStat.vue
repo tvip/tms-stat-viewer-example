@@ -4,6 +4,7 @@ import {useDeviceStore} from "@/store/device";
 import DeviceEntity from "@/model/DeviceEntity";
 import dayjs from "dayjs";
 import {useLocale} from "vuetify";
+import {AxiosError} from "axios";
 const { t } = useLocale()
 const deviceStore = useDeviceStore();
 
@@ -25,13 +26,14 @@ function load(){
   console.dir(props);
   deviceStore.getDeviceStat(props.range, props.provider).then((devices: DeviceEntity[])=>{
     deviceEntities.value = devices;
-    console.dir(devices);
+    loading.value = false;
+  }).catch((error: AxiosError)=>{
+    console.dir(error);
     loading.value = false;
   })
 }
 defineExpose({load})
-
-
+load();
 </script>
 
 <template>

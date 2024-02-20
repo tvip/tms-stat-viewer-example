@@ -13,12 +13,13 @@
     "unique_devices": "Maximum unique devices"
   },
   "query": {
+    "title": "Report options",
     "range": "Period",
     "from": "From",
     "to": "To",
     "provider": "Only for",
     "threshold": "View time threshold, min",
-    "do": "Do query",
+    "do": "Refresh",
     "showMinutes": "Show duration in minutes instead formatted duration",
     "showHours":  "Show duration in hours instead formatted duration"
   },

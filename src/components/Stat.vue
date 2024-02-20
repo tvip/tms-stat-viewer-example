@@ -26,8 +26,14 @@ const deviceStat = ref();
 
 
 function update(){
-  channelStat.value.load();
-  deviceStat.value.load();
+  switch (tab.value){
+    case 'channel':
+      channelStat.value.load();
+      break;
+    case 'device':
+      deviceStat.value.load();
+      break;
+  }
 }
 
 
@@ -35,7 +41,10 @@ function update(){
 
 <template>
 
-  <v-card>
+  <v-card class="ma-2">
+    <v-card-title>
+      {{$t('app.query.title')}}
+    </v-card-title>
     <v-card-text>
   <v-autocomplete v-model="provider" :label="$t('app.query.provider')" item-title="provider_name"  :items="providerStore.getProviders()" :return-object="true" :clearable="true"/>
 
@@ -61,10 +70,10 @@ function update(){
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-        <v-btn @click="update" prepend-icon="mdi-refresh" color="primary">{{$t('app.query.do')}}</v-btn>
+        <v-btn variant="flat"  @click="update" prepend-icon="mdi-refresh" color="red">{{$t('app.query.do')}}</v-btn>
     </v-card-actions>
   </v-card>
-  <v-card>
+  <v-card class="ma-2">
     <v-tabs
       v-model="tab"
       bg-color="primary"

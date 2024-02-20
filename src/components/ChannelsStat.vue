@@ -7,6 +7,7 @@ import {ChartDateSeries} from "@/interface/ChartDateSeries";
 import {ChannelsDayStat, useChannelStore} from "@/store/channel";
 import {useLocale} from "vuetify";
 import {useLogStore} from "@/store/log";
+import {AxiosError} from "axios";
 const channelStore = useChannelStore();
 const { t } = useLocale()
 const channelEntities = ref<ChannelEntity[]>( []);
@@ -91,13 +92,16 @@ function load(){
     channelEntities.value = channels;
     makeChannelChart(channelChartKey.value);
     loading.value = false;
-  })
+  }).catch((error: AxiosError)=>{
+    console.dir(error);
+    loading.value = false;
+  });
 
 }
 channelStore.init({enabled: true});
 defineExpose({load})
 
-
+load();
 </script>
 
 <template>
