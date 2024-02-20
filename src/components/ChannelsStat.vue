@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import ChannelEntity, {DayStat} from "@/model/ChannelEntity";
 import {ref} from "vue";
 import {ChartDateSeries} from "@/interface/ChartDateSeries";
-import {useChannelStore} from "@/store/channel";
+import {ChannelsDayStat, useChannelStore} from "@/store/channel";
 import {useLocale} from "vuetify";
 import {useLogStore} from "@/store/log";
 const channelStore = useChannelStore();
@@ -16,6 +16,7 @@ const logStore = useLogStore();
 
 
 const channelChartKeys= [
+  'auditory' as keyof DayStat,
   'liveViewers' as keyof DayStat,
   'dvrViewers' as keyof DayStat,
   'dvrMinutes' as keyof DayStat,
@@ -38,6 +39,15 @@ const channelTableHeaders = ref([
 
 ])
 
+const auditoryChartOptions = {
+  xaxis: {
+    type: 'datetime',
+    labels: {
+      datetimeUTC: false
+    }
+  }
+};
+
 const channelChartOptions = {
   xaxis: {
     type: 'datetime',
@@ -46,6 +56,8 @@ const channelChartOptions = {
     }
   }
 };
+
+const auditoryChartSeries = ref<ChartDateSeries>({name: 'auditory', data:[]});
 
 const channelChartSeries = ref<ChartDateSeries[]>([]);
 function makeChannelChart(value: keyof DayStat) {
@@ -57,6 +69,16 @@ function makeChannelChart(value: keyof DayStat) {
     })
     channelChartSeries.value.push(series);
   });
+  auditoryChartSeries.value.data = [];
+  auditoryChartSeries.value.data = channelStore.dayStats.sort(function(a,b){
+    if(a.date == b.date){
+      return 0;
+    }
+    return  a.date > b.date ? -1:1
+  }).map((value: ChannelsDayStat)=>{
+    return {x: value.date, y: value.auditory}
+  })
+  console.dir(auditoryChartSeries);
 }
 function load(){
   channelStore.eraseStat()
@@ -95,6 +117,10 @@ defineExpose({load})
     <v-card-text>
       <div style="width: 100%; height: 500px;">
         <apexchart height="500px" type="line" :options="channelChartOptions" :series="channelChartSeries"></apexchart>
+      </div>
+      <h3>{{$t('app.channels.auditory')}}</h3>
+      <div style="width: 100%; height: 500px;">
+        <apexchart height="500px" type="line" :options="auditoryChartOptions" :series="[auditoryChartSeries]"></apexchart>
       </div>
     </v-card-text>
   </v-card>

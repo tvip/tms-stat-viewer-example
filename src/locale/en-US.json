@@ -22,6 +22,9 @@
     "showMinutes": "Show duration in minutes instead formatted duration",
     "showHours":  "Show duration in hours instead formatted duration"
   },
+  "channels": {
+    "auditory": "Auditory: count of unique accounts which use TV"
+  },
   "channel": {
     "displayNumber": "Number",
     "logoUrl": "Logo",
@@ -35,6 +38,7 @@
       "to_period": "on period"
     },
     "dayStat": {
+      "auditory": "Auditory: count of unique accounts which looked the channel",
       "dvrMinutes": "DVR total view time",
       "liveMinutes": "Live total view time",
       "liveViewers": "Live viewers count",
@@ -42,6 +46,7 @@
       "totalViewers": "Live and DVR viewers",
       "totalTime": "Live and DVR view time",
       "averageViewingTime": "Daily average view time (Total view time / Total view count)"
+
     }
   }
 

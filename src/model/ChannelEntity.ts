@@ -9,6 +9,7 @@ export  class DayStat {
   averageViewingTime: number = 0;
   totalTime: number = 0;
   totalViewers: number = 0;
+  auditory: number = 0;
 
 
   addDvrMinutes(minutes: number){
@@ -31,6 +32,10 @@ export  class DayStat {
 
     this.averageViewingTime = Math.floor(this.totalTime/this.totalViewers);
 
+  }
+
+  addAuditory(count:number){
+    this.auditory += count;
   }
 
 }
@@ -61,6 +66,9 @@ export default class ChannelEntity {
       this.dvrViewers++;
   }
 
+  addAuditory(date: Date,count: number){
+    this.getStatDay(date).addAuditory(count)
+  }
 
   getStatDay(date: Date){
     let stat = this.stats.find((value: DayStat)=>{return value.date.getDate() == date.getDate()})

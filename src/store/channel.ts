@@ -12,13 +12,21 @@ import {useLogStore} from "@/store/log";
 interface State{
   loaded: boolean;
   channels: ChannelEntity[];
+  dayStats: ChannelsDayStat[];
   threshold: number;
 
 }
+
+export class ChannelsDayStat{
+  date: Date = new Date();
+  auditory: number = 0;
+}
+
 const logStore = useLogStore();
 export const useChannelStore = defineStore('channelStore',{
   state: (): State => ({
     channels: [],
+    dayStats:[],
     loaded:false,
     threshold: 60
   }),
@@ -47,6 +55,18 @@ export const useChannelStore = defineStore('channelStore',{
       return null;
     },
 
+    getChannelsDayStat(date: Date):ChannelsDayStat{
+      const s = this.dayStats.find((value: ChannelsDayStat)=>{return value.date == date})
+      if(typeof  s != 'undefined'){
+        return s;
+      }
+      const channelsDayStat = new ChannelsDayStat();
+      channelsDayStat.date = date;
+      this.dayStats.push(channelsDayStat);
+      return channelsDayStat;
+    },
+
+
     eraseStat():void{
       this.channels.forEach((channelEntity)=>{
         channelEntity.stats = [];
@@ -60,6 +80,7 @@ export const useChannelStore = defineStore('channelStore',{
     init({enabled}:{enabled:boolean}):void{
       channelService.collection({start:0, limit: 999, sort:[], enabled: enabled}).then((response: AxiosResponse)=>{
         this.channels = response.data.data.map((value: Channel)=>{return ChannelEntity.fromDto(value)});
+        this.channels.push(ChannelEntity.fromDto({id:-1,time_shift_depth:-1,name:'_total',logo_url:'',text_name:'_total',display_number:'-1',enabled:true}))
         this.loaded = true;
       })
     },
@@ -95,7 +116,10 @@ export const useChannelStore = defineStore('channelStore',{
             resolve(0);
           }
           for (const stat of accountData.provider_stat) {
+
             for (const account of stat.account_stat) {
+              let channelViewCount=0;
+
               for (const channel of account.channels) {
                 const channelEntity = this.getChannelById(channel.channel_id);
                 if (channelEntity) {
@@ -107,13 +131,22 @@ export const useChannelStore = defineStore('channelStore',{
                   if(dvrMinutes >= this.threshold){
                     channelEntity.addDvrMinutes(value,dvrMinutes)
                   }
+
+                  if(liveMinutes >= this.threshold || dvrMinutes >= this.threshold){
+                    channelEntity.addAuditory(value,1);
+                    channelViewCount++;
+                  }
                 }
+              }
+              if(channelViewCount>0){
+                this.getChannelsDayStat(value).auditory++;
               }
               count++;
               if(count == accountData.provider_stat.length){
                 resolve(count);
               }
             }
+
 
           }
 
