@@ -72,7 +72,7 @@ function load(){
   })
 
 }
-channelStore.init();
+channelStore.init({enabled: true});
 defineExpose({load})
 
 
@@ -108,9 +108,9 @@ defineExpose({load})
         :headers="channelTableHeaders"
         :items="channelEntities"
       >
+
         <template v-slot:[`item.logo_url`]="{value}">
           <v-img :src="value"></v-img>
-
         </template>
 
         <template v-if="!showMinutes" v-slot:[`item.liveMinutes`]="{value}">

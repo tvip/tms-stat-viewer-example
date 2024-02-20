@@ -33,9 +33,6 @@ export const useChannelStore = defineStore('channelStore',{
       }).slice(0,count);
     },
     getChannels():ChannelEntity[]{
-      if(this.loaded == false){
-        this.init();
-      }
       return  this.channels;
     },
     setThreshold(value: number){
@@ -60,8 +57,8 @@ export const useChannelStore = defineStore('channelStore',{
       })
     },
 
-    init():void{
-      channelService.collection({start:0, limit: 999, sort:[]}).then((response: AxiosResponse)=>{
+    init({enabled}:{enabled:boolean}):void{
+      channelService.collection({start:0, limit: 999, sort:[], enabled: enabled}).then((response: AxiosResponse)=>{
         this.channels = response.data.data.map((value: Channel)=>{return ChannelEntity.fromDto(value)});
         this.loaded = true;
       })
@@ -88,7 +85,7 @@ export const useChannelStore = defineStore('channelStore',{
           {
             from: dayjs(value).format('YYYY-MM-DD'),
             to: dayjs(value).format('YYYY-MM-DD'),
-            provider_id: provider ? provider.id : null
+            provider_id: provider ? provider.id : null,
           }
         ).then((response: AxiosResponse) => {
           logStore.addLog('fetched stat for ' + value.toLocaleDateString());
