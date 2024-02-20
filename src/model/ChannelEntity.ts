@@ -9,7 +9,7 @@ export  class DayStat {
   averageViewingTime: number = 0;
   totalTime: number = 0;
   totalViewers: number = 0;
-  auditory: number = 0;
+  audience: number = 0;
 
 
   addDvrMinutes(minutes: number){
@@ -34,8 +34,8 @@ export  class DayStat {
 
   }
 
-  addAuditory(count:number){
-    this.auditory += count;
+  addAudience(count:number){
+    this.audience += count;
   }
 
 }
@@ -66,8 +66,8 @@ export default class ChannelEntity {
       this.dvrViewers++;
   }
 
-  addAuditory(date: Date,count: number){
-    this.getStatDay(date).addAuditory(count)
+  addAudience(date: Date, count: number){
+    this.getStatDay(date).addAudience(count)
   }
 
   getStatDay(date: Date){

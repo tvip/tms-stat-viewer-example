@@ -16,7 +16,7 @@ const logStore = useLogStore();
 
 
 const channelChartKeys= [
-  'auditory' as keyof DayStat,
+  'audience' as keyof DayStat,
   'liveViewers' as keyof DayStat,
   'dvrViewers' as keyof DayStat,
   'dvrMinutes' as keyof DayStat,
@@ -39,7 +39,7 @@ const channelTableHeaders = ref([
 
 ])
 
-const auditoryChartOptions = {
+const audienceChartOptions = {
   xaxis: {
     type: 'datetime',
     labels: {
@@ -57,7 +57,7 @@ const channelChartOptions = {
   }
 };
 
-const auditoryChartSeries = ref<ChartDateSeries>({name: 'auditory', data:[]});
+const audienceChartSeries = ref<ChartDateSeries>({name: 'audience', data:[]});
 
 const channelChartSeries = ref<ChartDateSeries[]>([]);
 function makeChannelChart(value: keyof DayStat) {
@@ -69,16 +69,16 @@ function makeChannelChart(value: keyof DayStat) {
     })
     channelChartSeries.value.push(series);
   });
-  auditoryChartSeries.value.data = [];
-  auditoryChartSeries.value.data = channelStore.dayStats.sort(function(a,b){
+  audienceChartSeries.value.data = [];
+  audienceChartSeries.value.data = channelStore.dayStats.sort(function(a, b){
     if(a.date == b.date){
       return 0;
     }
     return  a.date > b.date ? -1:1
   }).map((value: ChannelsDayStat)=>{
-    return {x: value.date, y: value.auditory}
+    return {x: value.date, y: value.audience}
   })
-  console.dir(auditoryChartSeries);
+  console.dir(audienceChartSeries);
 }
 function load(){
   channelStore.eraseStat()
@@ -118,12 +118,12 @@ defineExpose({load})
       <div style="width: 100%; height: 500px;">
         <apexchart height="500px" type="line" :options="channelChartOptions" :series="channelChartSeries"></apexchart>
       </div>
-      <h3>{{$t('app.channels.auditory')}}</h3>
+      <h3>{{$t('app.channels.audience')}}</h3>
       <div style="width: 100%; height: 500px;">
-        <apexchart height="500px" type="line" :options="auditoryChartOptions" :series="[auditoryChartSeries]"></apexchart>
+        <apexchart height="500px" type="line" :options="audienceChartOptions" :series="[audienceChartSeries]"></apexchart>
       </div>
     </v-card-text>
-  </v-card>
+  </v-card>x
   <v-card>
     <v-card-title>{{$t('app.channel.report.title')}} {{$t('app.channel.report.to_period')}} {{dayjs(range[0]).format('DD.MM.YYYY')}} - {{dayjs(range[range.length-1]).format('DD.MM.YYYY')}} </v-card-title>
     <v-card-subtitle>{{$t('app.query.threshold')}}: {{threshold}}</v-card-subtitle>

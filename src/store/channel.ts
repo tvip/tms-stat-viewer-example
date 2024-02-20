@@ -19,7 +19,7 @@ interface State{
 
 export class ChannelsDayStat{
   date: Date = new Date();
-  auditory: number = 0;
+  audience: number = 0;
 }
 
 const logStore = useLogStore();
@@ -102,7 +102,8 @@ export const useChannelStore = defineStore('channelStore',{
       });
      },
     async fillDay(value:Date, provider: Provider|null = null):Promise<number>{
-      this.getChannelsDayStat(value).auditory = 0;
+      this.getChannelsDayStat(value).audience = 0;
+
       return new Promise((resolve)=>{
         accountStatService.query(
           {
@@ -135,13 +136,13 @@ export const useChannelStore = defineStore('channelStore',{
                   }
 
                   if(liveMinutes >= this.threshold || dvrMinutes >= this.threshold){
-                    channelEntity.addAuditory(value,1);
+                    channelEntity.addAudience(value,1);
                     channelViewCount++;
                   }
                 }
               }
               if(channelViewCount>0){
-                this.getChannelsDayStat(value).auditory++;
+                this.getChannelsDayStat(value).audience++;
               }
               count++;
               if(count == accountData.provider_stat.length){
