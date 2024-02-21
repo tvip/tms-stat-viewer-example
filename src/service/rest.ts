@@ -10,7 +10,7 @@ const apiStore = useApiStore();
 const logStore = useLogStore();
 const http:AxiosInstance = axios.create({
   baseURL: app.target,
-  timeout: 60000,
+  timeout: 300000,
   headers: {
     'Access-Control-Allow-Origin': '*',
     'Accept':'application/json',
