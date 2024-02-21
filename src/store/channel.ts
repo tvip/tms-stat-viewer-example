@@ -81,7 +81,6 @@ export const useChannelStore = defineStore('channelStore',{
     init({enabled}:{enabled:boolean}):void{
       channelService.collection({start:0, limit: 999, sort:[], enabled: enabled}).then((response: AxiosResponse)=>{
         this.channels = response.data.data.map((value: Channel)=>{return ChannelEntity.fromDto(value)});
-        this.channels.push(ChannelEntity.fromDto({id:-1,time_shift_depth:-1,name:'_total',logo_url:'',text_name:'_total',display_number:'-1',enabled:true}))
         this.loaded = true;
       })
     },
