@@ -105,7 +105,11 @@ load();
 </script>
 
 <template>
-  <v-progress-linear indeterminate color="yellow-darken-2" v-if="loading"></v-progress-linear>
+  <v-progress-linear indeterminate :height="12" color="yellow-darken-2" v-if="loading">
+    Don't panic, loading freeze is not equal fail, please have patience and wait
+  </v-progress-linear>
+
+  <div v-if="!loading">
   <v-card>
     <v-card-title>
       <v-select @update:modelValue="makeChannelChart" v-model="channelChartKey" :items="channelChartKeys">
@@ -152,6 +156,7 @@ load();
       </v-data-table>
     </v-card-text>
   </v-card>
+  </div>
 </template>
 
 <style scoped>
