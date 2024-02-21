@@ -1,4 +1,7 @@
 {
+  "common": {
+    "export_csv": "Download as CSV file"
+  },
   "stat": {
     "tab": {
       "channel": "Channels stat",

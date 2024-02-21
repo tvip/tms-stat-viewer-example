@@ -8,6 +8,7 @@ import {ChannelsDayStat, useChannelStore} from "@/store/channel";
 import {useLocale} from "vuetify";
 import {useLogStore} from "@/store/log";
 import {AxiosError} from "axios";
+import {download, generateCsv, mkConfig} from "export-to-csv";
 const channelStore = useChannelStore();
 const { t } = useLocale()
 const channelEntities = ref<ChannelEntity[]>( []);
@@ -39,6 +40,7 @@ const channelTableHeaders = ref([
   { title: t('app.channel.dvrViewers'), key: 'dvrViewers' },
 
 ])
+
 
 const audienceChartOptions = {
   xaxis: {
@@ -79,7 +81,6 @@ function makeChannelChart(value: keyof DayStat) {
   }).map((value: ChannelsDayStat)=>{
     return {x: value.date, y: value.audience}
   })
-  console.dir(audienceChartSeries);
 }
 function load(){
   channelStore.eraseStat()
@@ -98,6 +99,25 @@ function load(){
   });
 
 }
+
+function downloadCsv(){
+  const config = mkConfig({useKeysAsHeaders: true})
+  const csv = generateCsv(config)(channelEntities.value.map((value:ChannelEntity)=>{
+
+    return {
+      display_number: value.display_number,
+      name: value.name,
+      liveMinutes:
+      value.liveMinutes,
+      dvrMinutes: value.dvrMinutes,
+      liveViewers: value.liveViewers,
+      dvrViewers: value.dvrViewers
+    };
+  }))
+  download(config)(csv);
+}
+
+
 channelStore.init({enabled: true});
 defineExpose({load})
 
@@ -137,11 +157,13 @@ load();
     <v-card-subtitle>{{$t('app.query.threshold')}}: {{threshold}}</v-card-subtitle>
     <v-card-text>
       <v-checkbox v-model="showMinutes" :label="$t('app.query.showMinutes')"></v-checkbox>
-
+      <v-btn prepend-icon="mdi-file-delimited" @click="downloadCsv">{{$t('app.common.export_csv')}}</v-btn>
       <v-data-table
         :headers="channelTableHeaders"
         :items="channelEntities"
       >
+
+
 
         <template v-slot:[`item.logo_url`]="{value}">
           <v-img :src="value"></v-img>
