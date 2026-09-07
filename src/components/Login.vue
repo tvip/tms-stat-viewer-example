@@ -2,10 +2,10 @@
 import {useAppStore} from "@/store/app";
 import {ref} from "vue";
 import providerService from "@/service/provider/ProviderService";
-import {AxiosResponse} from "axios";
 import {useProviderStore} from "@/store/provider";
 import router from "@/router";
 import http from "@/service/rest";
+import {Provider} from "@/dto/provider/Provider";
 
 const appStore = useAppStore();
 const providerStore = useProviderStore();
@@ -19,13 +19,19 @@ function login(){
     appStore.token = btoa(username.value + ":" + password.value);
 
     http.defaults.baseURL = appStore.target;
-    // http.defaults.headers.common['Authorization'] = "Basic "+ btoa(username.value + ":" + password.value);
+    wait.value = true;
 
-    providerService.collection({start:0, limit:-1,sort:[],enabled:null})
-      .then((response: AxiosResponse)=>{
-          providerStore.setProviders(response.data.data)
+    providerService.collectionAll<Provider>({sort:[], enabled:null})
+      .then((providers: Provider[])=>{
+          providerStore.setProviders(providers)
           router.push({name: 'stat'});
         })
+      .catch((error)=>{
+        console.dir(error);
+      })
+      .finally(()=>{
+        wait.value = false;
+      })
   }
 }
 </script>

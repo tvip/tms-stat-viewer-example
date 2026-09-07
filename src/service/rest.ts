@@ -12,7 +12,6 @@ const http:AxiosInstance = axios.create({
   baseURL: app.target,
   timeout: 300000,
   headers: {
-    'Access-Control-Allow-Origin': '*',
     'Accept':'application/json',
     'Authorization':`Basic ${app.token}`
   },

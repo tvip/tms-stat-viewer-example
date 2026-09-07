@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import dayjs from "dayjs";
-import ChannelEntity, {DayStat} from "@/model/ChannelEntity";
+import ChannelEntity, {channelLogoUrl, DayStat} from "@/model/ChannelEntity";
 import {ref} from "vue";
 import {ChartDateSeries} from "@/interface/ChartDateSeries";
 import {ChannelsDayStat, useChannelStore} from "@/store/channel";
@@ -33,6 +33,7 @@ const showMinutes = ref<boolean>(false);
 
 const channelTableHeaders = ref([
   { title: t('app.channel.displayNumber'), key: 'display_number' },
+  { title: t('app.channel.logoUrl'), key: 'logo_url', sortable: false, width: 112 },
   { title: t('app.channel.name'), key: 'name' },
   { title: t('app.channel.liveMinutes'), key: 'liveMinutes' },
   { title: t('app.channel.dvrMinutes'), key: 'dvrMinutes' },
@@ -72,18 +73,13 @@ function makeChannelChart(value: keyof DayStat) {
     })
     channelChartSeries.value.push(series);
   });
-  audienceChartSeries.value.data = [];
-  audienceChartSeries.value.data = channelStore.dayStats.sort(function(a, b){
-    if(a.date == b.date){
-      return 0;
-    }
-    return  a.date > b.date ? -1:1
+  audienceChartSeries.value.data = [...channelStore.dayStats].sort((a: ChannelsDayStat, b: ChannelsDayStat)=>{
+    return a.date.valueOf() - b.date.valueOf();
   }).map((value: ChannelsDayStat)=>{
     return {x: value.date, y: value.audience}
   })
 }
 function load(){
-  channelStore.eraseStat()
   loading.value = true;
   channelChartSeries.value = [];
   logStore.addLog('erase old stat');
@@ -151,7 +147,7 @@ load();
         <apexchart height="500px" type="line" :options="audienceChartOptions" :series="[audienceChartSeries]"></apexchart>
       </div>
     </v-card-text>
-  </v-card>x
+  </v-card>
   <v-card>
     <v-card-title>{{$t('app.channel.report.title')}} {{$t('app.channel.report.to_period')}} {{dayjs(range[0]).format('DD.MM.YYYY')}} - {{dayjs(range[range.length-1]).format('DD.MM.YYYY')}} </v-card-title>
     <v-card-subtitle>{{$t('app.query.threshold')}}: {{threshold}}</v-card-subtitle>
@@ -165,8 +161,15 @@ load();
 
 
 
-        <template v-slot:[`item.logo_url`]="{value}">
-          <v-img :src="value"></v-img>
+        <template v-slot:[`item.logo_url`]="{item}">
+          <v-img
+            v-if="item.logo_url"
+            :src="channelLogoUrl(item.logo_url, 192, 108)"
+            :alt="item.name"
+            :width="96"
+            :height="54"
+            class="channel-logo my-1"
+          ></v-img>
         </template>
 
         <template v-if="!showMinutes" v-slot:[`item.liveMinutes`]="{value}">
@@ -182,5 +185,12 @@ load();
 </template>
 
 <style scoped>
-
+/* logos are widescreen full-bleed images, the fixed 16:9 frame keeps rows even */
+.channel-logo {
+  flex: 0 0 auto;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+}
 </style>

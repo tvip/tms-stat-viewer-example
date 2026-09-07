@@ -7,10 +7,14 @@ export class DeviceDayStat{
   live_hours: number = 0;
   unique_devices: number = 0;
 }
+
+/**
+ * Stat of one device class. TMS reports the same class both as "deviceclass.phone" and "phone",
+ * both are merged under the short name (tms-stat-view does the same).
+ */
 export default class DeviceEntity {
   static readonly CLASS_PREFIX = 'deviceclass.';
 
-  class: string = '';
   name: string = '';
 
   stats: DeviceDayStat[]=[];

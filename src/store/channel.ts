@@ -1,13 +1,21 @@
 import {defineStore} from "pinia";
-import {AxiosError, AxiosResponse} from "axios";
+import {toRaw} from "vue";
+import {AxiosResponse} from "axios";
 import {Channel} from "@/dto/provider/Channel";
 import channelService from "@/service/provider/ChannelService";
 import ChannelEntity from "@/model/ChannelEntity";
+import ChannelStatAggregator, {ChannelsDayStat} from "@/model/ChannelStatAggregator";
 import accountStatService from "@/service/stat/AccountStatService";
 import dayjs from "dayjs";
-import {AccountStatResponse} from "@/dto/stat/AccountStatResponse";
 import {Provider} from "@/dto/provider/Provider";
 import {useLogStore} from "@/store/log";
+import {mapWithConcurrency} from "@/service/concurrency";
+
+/**
+ * Account stat is megabytes per day and takes seconds on the TMS side,
+ * so only a couple of days are requested at once and each response is dropped right after aggregation.
+ */
+const ACCOUNT_STAT_CONCURRENCY = 2;
 
 interface State{
   loaded: boolean;
@@ -17,12 +25,11 @@ interface State{
 
 }
 
-export class ChannelsDayStat{
-  date: Date = new Date();
-  audience: number = 0;
-}
+export {ChannelsDayStat};
 
 const logStore = useLogStore();
+let initPromise: Promise<void>|null = null;
+
 export const useChannelStore = defineStore('channelStore',{
   state: (): State => ({
     channels: [],
@@ -31,13 +38,9 @@ export const useChannelStore = defineStore('channelStore',{
     threshold: 60
   }),
   actions: {
-    getTop(count:number =10){
-      return this.channels.sort(function (a, b){
-        if(a.liveMinutes+a.dvrMinutes == b.liveMinutes+a.dvrMinutes){
-          return 0;
-        }
-
-        return a.liveMinutes+a.dvrMinutes > b.liveMinutes+a.dvrMinutes ? -1:1
+    getTop(count:number =10): ChannelEntity[]{
+      return [...this.channels].sort((a: ChannelEntity, b: ChannelEntity)=>{
+        return (b.liveMinutes + b.dvrMinutes) - (a.liveMinutes + a.dvrMinutes);
       }).slice(0,count);
     },
     getChannels():ChannelEntity[]{
@@ -48,24 +51,12 @@ export const useChannelStore = defineStore('channelStore',{
     },
 
     getChannelById(id: number):ChannelEntity|null{
-      const channel =  this.getChannels().find((value)=>{return value.id == id});
+      const channel =  this.channels.find((value)=>{return value.id == id});
       if(typeof channel != 'undefined'){
         return channel;
       }
       return null;
     },
-
-    getChannelsDayStat(date: Date):ChannelsDayStat{
-      const s = this.dayStats.find((value: ChannelsDayStat)=>{return value.date == date})
-      if(typeof  s != 'undefined'){
-        return s;
-      }
-      const channelsDayStat = new ChannelsDayStat();
-      channelsDayStat.date = date;
-      this.dayStats.push(channelsDayStat);
-      return channelsDayStat;
-    },
-
 
     eraseStat():void{
       this.channels.forEach((channelEntity)=>{
@@ -78,87 +69,44 @@ export const useChannelStore = defineStore('channelStore',{
       this.dayStats = [];
     },
 
-    init({enabled}:{enabled:boolean}):void{
-      channelService.collection({start:0, limit: 999, sort:[], enabled: enabled}).then((response: AxiosResponse)=>{
-        this.channels = response.data.data.map((value: Channel)=>{return ChannelEntity.fromDto(value)});
-        this.loaded = true;
-      })
+    /**
+     * Loads the channel list once; concurrent calls share the same request.
+     */
+    init({enabled}:{enabled:boolean}):Promise<void>{
+      if(initPromise === null){
+        initPromise = channelService.collectionAll<Channel>({sort: [], enabled: enabled}).then((channels: Channel[])=>{
+          // the server ignores the enabled filter on this endpoint, so it is applied here as well
+          const filtered = channels.filter((value: Channel)=>{return value.enabled === enabled});
+          this.channels = filtered.map((value: Channel)=>{return ChannelEntity.fromDto(value)});
+          this.loaded = true;
+          logStore.addLog('loaded ' + filtered.length + ' of ' + channels.length + ' channels');
+        }).catch((error)=>{
+          initPromise = null;
+          throw error;
+        });
+      }
+      return initPromise;
     },
-    async fillStat(dateRange: Date[], provider: Provider|null = null):Promise<ChannelEntity[]>{
-      return new Promise<ChannelEntity[]>((resolve, reject) => {
-        let count:number = 0;
-        if(dateRange.length ==0){
-          resolve(this.channels);
-        }
-        for  (const value of dateRange) {
-          this.fillDay(value,provider).then(()=>{
-            count++;
-            if(count == dateRange.length){
-              resolve(this.channels);
-            }
-          }).catch((error: AxiosError)=>{
-            reject(error);
-          })
-        }
-      });
-     },
-    async fillDay(value:Date, provider: Provider|null = null):Promise<number>{
-      this.getChannelsDayStat(value).audience = 0;
 
-      return new Promise((resolve,reject)=>{
-        accountStatService.query(
+    async fillStat(dateRange: Date[], provider: Provider|null = null):Promise<ChannelEntity[]>{
+      if(!this.loaded){
+        await this.init({enabled: true});
+      }
+      const aggregator = new ChannelStatAggregator(toRaw(this.channels), this.threshold);
+      await mapWithConcurrency(dateRange, ACCOUNT_STAT_CONCURRENCY, async (value: Date)=>{
+        const response: AxiosResponse = await accountStatService.query(
           {
             from: dayjs(value).format('YYYY-MM-DD'),
             to: dayjs(value).format('YYYY-MM-DD'),
             provider_id: provider ? provider.id : null,
           }
-        ).then((response: AxiosResponse) => {
-          logStore.addLog('fetched stat for ' + value.toLocaleDateString());
-          let count: number = 0;
-          const accountData: AccountStatResponse = response.data;
-          if(accountData.provider_stat.length == 0){
-            resolve(0);
-          }
-          for (const stat of accountData.provider_stat) {
-
-            for (const account of stat.account_stat) {
-              let channelViewCount=0;
-
-              for (const channel of account.channels) {
-                const channelEntity = this.getChannelById(channel.channel_id);
-                if (channelEntity) {
-                  const liveMinutes = channel.live_minutes ? channel.live_minutes: channel.live_hours*60;
-                  const dvrMinutes:number = channel.dvr_minutes ? channel.dvr_minutes: channel.dvr_hours*60;
-                  if(liveMinutes >= this.threshold){
-                    channelEntity.addLiveMinutes(value,liveMinutes)
-                  }
-                  if(dvrMinutes >= this.threshold){
-                    channelEntity.addDvrMinutes(value,dvrMinutes)
-                  }
-
-                  if(liveMinutes >= this.threshold || dvrMinutes >= this.threshold){
-                    channelEntity.addAudience(value,1);
-                    channelViewCount++;
-                  }
-                }
-              }
-              if(channelViewCount>0){
-                this.getChannelsDayStat(value).audience++;
-              }
-              count++;
-              if(count == accountData.provider_stat.length){
-                resolve(count);
-              }
-            }
-
-
-          }
-
-        }).catch((error: AxiosError)=>{
-          reject(error);
-        })
-      })
-
+        );
+        const dayStat = aggregator.addDay(value, response.data);
+        logStore.addLog('fetched stat for ' + value.toLocaleDateString() + ', audience ' + dayStat.audience);
+      });
+      this.channels = aggregator.channels;
+      this.dayStats = aggregator.dayStats;
+      return this.channels;
     }
   }
 })

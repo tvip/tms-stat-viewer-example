@@ -36,8 +36,12 @@ const chartOptions = {
 type TableHeader = {title: string, key: string};
 type TableRow = Record<string, string|number>;
 
+const providerById = computed<Map<number, Provider>>(()=>{
+  return new Map(providerStore.getProviders().map((provider: Provider)=>{return [provider.id, provider]}));
+});
+
 function getProvider(id: number): Provider|undefined{
-  return providerStore.getProviders().find((value: Provider)=>{return value.id == id});
+  return providerById.value.get(id);
 }
 
 function periodSuffix(): string{
