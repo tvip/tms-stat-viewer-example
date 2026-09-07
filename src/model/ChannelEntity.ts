@@ -1,7 +1,31 @@
 import {Channel} from "@/dto/provider/Channel";
+import dayjs from "dayjs";
+
+/**
+ * Key of a calendar day, used to match stats to days (comparing Date objects by day of month
+ * merged e.g. Jan 15 and Feb 15).
+ */
+export function dayKey(date: Date): string{
+  return dayjs(date).format('YYYY-MM-DD');
+}
+
+/**
+ * TMS image links carry size placeholders: /image/png/<id>/${w}/${h}/${mode}/logo.png
+ * (the API returns them URL-encoded). Without substitution the server sends the full-size image.
+ */
+export function channelLogoUrl(url: string|null|undefined, width: number, height: number, mode: string = 'fit'): string|undefined{
+  if(!url){
+    return undefined;
+  }
+  return url
+    .replace(/\$\{w\}|%24%7Bw%7D/g, String(width))
+    .replace(/\$\{h\}|%24%7Bh%7D/g, String(height))
+    .replace(/\$\{mode\}|%24%7Bmode%7D/g, mode);
+}
 
 export  class DayStat {
   date: Date = new Date();
+  key: string = '';
   liveViewers: number = 0;
   dvrViewers: number = 0;
   dvrMinutes: number = 0;
@@ -70,15 +94,35 @@ export default class ChannelEntity {
     this.getStatDay(date).addAudience(count)
   }
 
-  getStatDay(date: Date){
-    let stat = this.stats.find((value: DayStat)=>{return value.date.getDate() == date.getDate()})
-    if(stat instanceof DayStat){
+  getStatDay(date: Date): DayStat{
+    return this.getStatDayByKey(dayKey(date), date);
+  }
+
+  getStatDayByKey(key: string, date: Date): DayStat{
+    let stat = this.stats.find((value: DayStat)=>{return value.key == key})
+    if(stat){
       return stat;
     }
     stat = new DayStat();
     stat.date = date;
+    stat.key = key;
     this.stats.push(stat);
     return stat;
+  }
+
+  /**
+   * Copy of the channel without any stat.
+   */
+  cloneMeta(): ChannelEntity{
+    const e:ChannelEntity = new ChannelEntity();
+    e.id = this.id;
+    e.name = this.name;
+    e.text_name = this.text_name;
+    e.display_number = this.display_number;
+    e.logo_url = this.logo_url;
+    e.enabled = this.enabled;
+    e.time_shift_depth = this.time_shift_depth;
+    return e;
   }
 
   static  fromDto(o:Channel):ChannelEntity{

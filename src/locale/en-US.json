@@ -13,7 +13,35 @@
     "class": "Device class",
     "live_hours": "Live hours",
     "dvr_hours": "DVR hours",
-    "unique_devices": "Maximum unique devices"
+    "unique_devices": "Maximum unique devices",
+    "usage": "Daily device usage",
+    "report": {
+      "title": "Device usage report",
+      "to_period": "on period"
+    },
+    "dayStat": {
+      "unique_devices": "Unique devices per day",
+      "live_hours": "Live view time per day, hours",
+      "dvr_hours": "DVR view time per day, hours"
+    }
+  },
+  "subscription": {
+    "title": "Subscription report",
+    "to_period": "on period",
+    "type": "Report type",
+    "tariffs": "Tariffs",
+    "tariffs_hint": "Select tariffs which must present in report, if no tariffs selected report will be generated without filters",
+    "filterDescription": "Filter by provider comment",
+    "provider": "Provider",
+    "description": "Description",
+    "date": "Date",
+    "chart": "Subscriptions per day by tariff (sum over providers)",
+    "types": {
+      "enabled_count": "Enabled subscriptions",
+      "active_count": "Enabled subscriptions with activity",
+      "enabled_device_count": "Enabled device count",
+      "enabled_account_with_devices": "Enabled account with devices"
+    }
   },
   "query": {
     "title": "Report options",

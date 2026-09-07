@@ -1,4 +1,5 @@
 import {DeviceStat} from "@/dto/stat/DeviceStatResponse";
+import dayjs from "dayjs";
 
 export class DeviceDayStat{
   date: Date = new Date();
@@ -6,14 +7,25 @@ export class DeviceDayStat{
   live_hours: number = 0;
   unique_devices: number = 0;
 }
+
+/**
+ * Stat of one device class. TMS reports the same class both as "deviceclass.phone" and "phone",
+ * both are merged under the short name (tms-stat-view does the same).
+ */
 export default class DeviceEntity {
-  class: string = '';
+  static readonly CLASS_PREFIX = 'deviceclass.';
+
+  name: string = '';
 
   stats: DeviceDayStat[]=[];
 
   dvr_hours: number = 0;
   live_hours: number = 0;
   unique_devices: number = 0;
+
+  static nameFromClass(cls: string): string{
+    return cls.startsWith(DeviceEntity.CLASS_PREFIX) ? cls.substring(DeviceEntity.CLASS_PREFIX.length) : cls;
+  }
 
   erase(){
     this.dvr_hours = 0;
@@ -22,22 +34,26 @@ export default class DeviceEntity {
     this.stats = [];
   }
 
+  /**
+   * Accumulates stat of one provider for one day.
+   * Hours are summed over providers and days, unique devices are summed over providers
+   * per day and the period value is the maximum of daily values.
+   */
   addStat(date: Date, o:DeviceStat):void{
     const e = this.getStatDay(date);
-    e.date = date;
-    e.dvr_hours = o.dvr_hours;
-    e.live_hours = o.live_hours;
-    e.unique_devices = o.unique_devices;
+    e.dvr_hours += o.dvr_hours;
+    e.live_hours += o.live_hours;
+    e.unique_devices += o.unique_devices;
 
     this.dvr_hours += o.dvr_hours;
     this.live_hours += o.live_hours;
-    if(o.unique_devices > this.unique_devices){
-      this.unique_devices = o.unique_devices;
+    if(e.unique_devices > this.unique_devices){
+      this.unique_devices = e.unique_devices;
     }
   }
 
   getStatDay(date: Date){
-    let stat = this.stats.find((value: DeviceDayStat)=>{return value.date.getDate() == date.getDate()})
+    let stat = this.stats.find((value: DeviceDayStat)=>{return dayjs(value.date).isSame(date,'day')})
     if(stat instanceof DeviceDayStat){
       return stat;
     }

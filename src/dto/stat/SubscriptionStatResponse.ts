@@ -5,17 +5,19 @@ export type Subscription = {
   enabled_device_count: number;
   active_count: number;
   disabled_count: number;
-  enabled_account_with_devices:number
+  /** absent on older TMS versions */
+  enabled_account_with_devices?: number;
 }
 
 export type SubscriptionStat = {
-  date: number;
+  /** YYYY-MM-DD */
+  date: string;
   subscriptions: Subscription[];
 }
 
 export type ProviderStat = {
   provider_id: number;
-  subscription_stat: SubscriptionStat[];
+  subscriptions_stat: SubscriptionStat[];
 }
 
 export type SubscriptionStatResponse = {
