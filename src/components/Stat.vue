@@ -9,6 +9,7 @@ import {useLocale} from "vuetify";
 
 import ChannelsStat from "@/components/ChannelsStat.vue";
 import DeviceStat from "@/components/DeviceStat.vue";
+import SubscriptionStat from "@/components/SubscriptionStat.vue";
 const providerStore = useProviderStore();
 
 const { t } = useLocale()
@@ -22,6 +23,7 @@ dayjs.extend(duration);
 const tab = ref();
 const channelStat = ref();
 const deviceStat = ref();
+const subscriptionStat = ref();
 
 
 
@@ -32,6 +34,9 @@ function update(){
       break;
     case 'device':
       deviceStat.value.load();
+      break;
+    case 'subscription':
+      subscriptionStat.value.load();
       break;
   }
 }
@@ -80,6 +85,7 @@ function update(){
     >
       <v-tab value="channel">{{$t('app.stat.tab.channel')}}</v-tab>
       <v-tab value="device">{{$t('app.stat.tab.device')}}</v-tab>
+      <v-tab value="subscription">{{$t('app.stat.tab.subscription')}}</v-tab>
 
     </v-tabs>
     <v-card-text>
@@ -90,6 +96,10 @@ function update(){
 
         <v-window-item value="device">
           <DeviceStat ref="deviceStat" :provider="provider" :range="range"></DeviceStat>
+        </v-window-item>
+
+        <v-window-item value="subscription">
+          <SubscriptionStat ref="subscriptionStat" :provider="provider" :range="range"></SubscriptionStat>
         </v-window-item>
 
       </v-window>
